@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Practice Game V2</title>
+    <title>English Practice Game V5</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom Styles */
+        /* Estilos Customizados */
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f0f2f5;
@@ -33,7 +33,7 @@
         }
 
         #game-area {
-            display: none; /* Hidden by default */
+            display: none; /* Escondido por padrão */
         }
 
         .btn-module {
@@ -87,14 +87,29 @@
         #next-btn {
             font-weight: 600;
         }
-
-        .score-text {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
         
         #module-title {
              flex-grow: 1;
+        }
+        
+        /* Estilos para o modal de pontuação final */
+        .modal-body {
+            padding-bottom: 1.5rem;
+        }
+        #wrong-answers-container {
+            max-height: 40vh;
+            overflow-y: auto;
+            padding-right: 15px;
+        }
+        .wrong-answer-item {
+            background-color: #f8f9fa;
+            border-left: 5px solid #dc3545;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+        }
+        .wrong-answer-item p {
+            margin-bottom: 0.25rem;
         }
 
     </style>
@@ -102,7 +117,7 @@
 <body>
 
     <div class="game-container">
-        <!-- Module Selection Screen -->
+        <!-- Tela de Seleção de Módulo -->
         <div id="module-selection">
             <h1 class="mb-4">English Practice Game</h1>
             <p class="lead mb-4">Selecione um módulo para começar a praticar.</p>
@@ -114,36 +129,42 @@
             </div>
         </div>
 
-        <!-- Game Area -->
+        <!-- Área do Jogo -->
         <div id="game-area">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <button id="back-to-menu-btn" class="btn btn-outline-secondary">&larr; Voltar</button>
                 <h2 id="module-title" class="mb-0 mx-3"></h2>
-                <div style="width: 80px;"></div> <!-- Spacer to keep title centered -->
+                <div style="width: 80px;"></div> <!-- Espaçador para manter o título centralizado -->
             </div>
             <div class="progress mb-4" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                 <div class="progress-bar bg-success" style="width: 0%"></div>
             </div>
             <p id="question-text"></p>
             <div id="answer-buttons" class="d-grid gap-2">
-                <!-- Answer buttons will be generated here by JS -->
+                <!-- Botões de resposta serão gerados aqui pelo JS -->
             </div>
             <div id="feedback"></div>
             <button id="next-btn" class="btn btn-dark mt-4 float-end" style="display: none;">Próxima &rarr;</button>
         </div>
     </div>
 
-    <!-- Final Score Modal -->
+    <!-- Modal de Pontuação Final -->
     <div class="modal fade" id="scoreModal" tabindex="-1" aria-labelledby="scoreModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content text-center">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title w-100" id="scoreModalLabel">Fim de Jogo!</h5>
+                    <h5 class="modal-title w-100 fs-3" id="scoreModalLabel">Fim de Jogo!</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="score-text">Sua pontuação final é:</p>
+                    <p class="fs-5">Sua pontuação final foi:</p>
                     <p class="display-4 fw-bold" id="final-score"></p>
+                    <p class="fs-5 mt-3">Porcentagem de acerto:</p>
+                    <p class="display-4 fw-bold" id="final-percentage"></p>
+                    <hr>
+                    <div id="wrong-answers-container" class="mt-4 text-start">
+                        <!-- Explicações dos erros serão inseridas aqui -->
+                    </div>
                 </div>
                 <div class="modal-footer border-0 justify-content-center">
                     <button type="button" class="btn btn-primary" id="restart-btn">Jogar Novamente</button>
@@ -155,218 +176,218 @@
     <!-- Bootstrap & Game JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // --- DATA: Expanded questions for each module ---
+        // --- DADOS: Perguntas com explicações ---
         const questions = [
-            // Module 1: Present simple with TO BE, articles, numbers, parts of the body and objects. (50 questions)
-            { module: 1, question: "They ___ from Canada.", options: ["are", "is", "am"], correct: 0 },
-            { module: 1, question: "I ___ a student.", options: ["am", "is", "are"], correct: 0 },
-            { module: 1, question: "She ___ a doctor.", options: ["is", "am", "are"], correct: 0 },
-            { module: 1, question: "This is ___ orange.", options: ["an", "a", "the"], correct: 0 },
-            { module: 1, question: "I have ___ cat.", options: ["a", "an", "the"], correct: 0 },
-            { module: 1, question: "How do you spell the number 20?", options: ["twenty", "twente", "twentty"], correct: 0 },
-            { module: 1, question: "You use your ___ to see.", options: ["eyes", "hands", "ears"], correct: 0 },
-            { module: 1, question: "What is this? (An object to write with)", options: ["It's a pen", "It's an pen", "It is the pen"], correct: 0 },
-            { module: 1, question: "We ___ happy to be here.", options: ["are", "is", "am"], correct: 0 },
-            { module: 1, question: "He ___ an engineer.", options: ["is", "are", "am"], correct: 0 },
-            { module: 1, question: "It ___ a beautiful day.", options: ["is", "are", "am"], correct: 0 },
-            { module: 1, question: "You ___ my best friend.", options: ["are", "is", "am"], correct: 0 },
-            { module: 1, question: "There is ___ elephant in the zoo.", options: ["an", "a", "the"], correct: 0 },
-            { module: 1, question: "Can I have ___ apple?", options: ["an", "a", "the"], correct: 0 },
-            { module: 1, question: "___ sun is very bright today.", options: ["The", "A", "An"], correct: 0 },
-            { module: 1, question: "She is wearing ___ blue dress.", options: ["a", "an", "the"], correct: 0 },
-            { module: 1, question: "What is the number after sixty-nine?", options: ["seventy", "sixty-ten", "sixty-eight"], correct: 0 },
-            { module: 1, question: "How do you write '13' in words?", options: ["thirteen", "thirty", "threeteen"], correct: 0 },
-            { module: 1, question: "What is 100 - 50?", options: ["fifty", "fivety", "fiveteen"], correct: 0 },
-            { module: 1, question: "You use your ___ to hear music.", options: ["ears", "nose", "mouth"], correct: 0 },
-            { module: 1, question: "Your ___ is between your eyes and your mouth.", options: ["nose", "chin", "forehead"], correct: 0 },
-            { module: 1, question: "You clap with your ___.", options: ["hands", "feet", "legs"], correct: 0 },
-            { module: 1, question: "A ___ is a place to sleep.", options: ["bed", "chair", "table"], correct: 0 },
-            { module: 1, question: "You sit on a ___.", options: ["chair", "sofa", "desk"], correct: 0 },
-            { module: 1, question: "___ book on the table is mine.", options: ["The", "A", "An"], correct: 0 },
-            { module: 1, question: "My brother and I ___ twins.", options: ["are", "is", "am"], correct: 0 },
-            { module: 1, question: "This dog ___ very friendly.", options: ["is", "are", "am"], correct: 0 },
-            { module: 1, question: "These flowers ___ for you.", options: ["are", "is", "am"], correct: 0 },
-            { module: 1, question: "I need ___ new computer.", options: ["a", "an", "the"], correct: 0 },
-            { module: 1, question: "He is from ___ European country.", options: ["a", "an", "the"], correct: 0 },
-            { module: 1, question: "The number before one is ___.", options: ["zero", "two", "ten"], correct: 0 },
-            { module: 1, question: "How do you spell 8?", options: ["eight", "eigt", "height"], correct: 0 },
-            { module: 1, question: "You walk with your ___.", options: ["legs", "arms", "shoulders"], correct: 0 },
-            { module: 1, question: "You have ten ___ on your hands.", options: ["fingers", "toes", "nails"], correct: 0 },
-            { module: 1, question: "This is a ___ (object for drinking water).", options: ["glass", "plate", "fork"], correct: 0 },
-            { module: 1, question: "___ children are playing outside.", options: ["The", "A", "An"], correct: 0 },
-            { module: 1, question: "The car ___ red.", options: ["is", "are", "am"], correct: 0 },
-            { module: 1, question: "The cats ___ sleeping.", options: ["are", "is", "am"], correct: 0 },
-            { module: 1, question: "I saw ___ interesting movie last night.", options: ["an", "a", "the"], correct: 0 },
-            { module: 1, question: "She is ___ honest person.", options: ["an", "a", "the"], correct: 0 },
-            { module: 1, question: "What is 11 + 4?", options: ["fifteen", "fiveteen", "fifty"], correct: 0 },
-            { module: 1, question: "The number 90 in words is ___.", options: ["ninety", "ninty", "ninteen"], correct: 0 },
-            { module: 1, question: "You smell with your ___.", options: ["nose", "eyes", "mouth"], correct: 0 },
-            { module: 1, question: "The hair is on your ___.", options: ["head", "face", "neck"], correct: 0 },
-            { module: 1, question: "A ___ is used to unlock a door.", options: ["key", "lock", "handle"], correct: 0 },
-            { module: 1, question: "Where ___ you from?", options: ["are", "is", "am"], correct: 0 },
-            { module: 1, question: "What ___ your name?", options: ["is", "are", "am"], correct: 0 },
-            { module: 1, question: "How old ___ she?", options: ["is", "are", "am"], correct: 0 },
-            { module: 1, question: "He has ___ unique talent.", options: ["a", "an", "the"], correct: 0 },
-            { module: 1, question: "___ Pacific Ocean is the largest ocean.", options: ["The", "A", "An"], correct: 0 },
-            
-            // Module 2: Possessive/Adjective/Demonstrative Pronouns, Alphabet. (50 questions)
-            { module: 2, question: "This car is ___. It belongs to me.", options: ["mine", "my", "me"], correct: 0 },
-            { module: 2, question: "That is ___ house.", options: ["her", "hers", "she"], correct: 0 },
-            { module: 2, question: "___ are my friends over there.", options: ["Those", "This", "That"], correct: 0 },
-            { module: 2, question: "Is this your book? No, it's ___.", options: ["his", "he", "him"], correct: 0 },
-            { module: 2, question: "What's the fifth letter of the alphabet?", options: ["E", "F", "D"], correct: 0 },
-            { module: 2, question: "___ computer is very fast.", options: ["Their", "Theirs", "Them"], correct: 0 },
-            { module: 2, question: "The blue bike is ___.", options: ["ours", "our", "us"], correct: 0 },
-            { module: 2, question: "I can't find ___ keys.", options: ["my", "mine", "me"], correct: 0 },
-            { module: 2, question: "Look at ___ bird in the tree.", options: ["that", "those", "these"], correct: 0 },
-            { module: 2, question: "___ cookies are delicious. Try one!", options: ["These", "This", "That"], correct: 0 },
-            { module: 2, question: "The decision is ___.", options: ["yours", "your", "you"], correct: 0 },
-            { module: 2, question: "She introduced me to ___ brother.", options: ["her", "hers", "she"], correct: 0 },
-            { module: 2, question: "Is that ___ car? No, it's not mine.", options: ["your", "yours", "you"], correct: 0 },
-            { module: 2, question: "He forgot ___ homework.", options: ["his", "him", "he"], correct: 0 },
-            { module: 2, question: "The cat is washing ___ paws.", options: ["its", "it's", "it"], correct: 0 },
-            { module: 2, question: "How do you spell 'Apple'?", options: ["A-P-P-L-E", "A-P-L-E", "A-P-P-L"], correct: 0 },
-            { module: 2, question: "What letter comes after 'M'?", options: ["N", "L", "O"], correct: 0 },
-            { module: 2, question: "Which letter is a vowel?", options: ["U", "T", "S"], correct: 0 },
-            { module: 2, question: "The house is big. ___ windows are large.", options: ["Its", "It's", "It"], correct: 0 },
-            { module: 2, question: "Don't touch that! It's not ___.", options: ["yours", "your", "you"], correct: 0 },
-            { module: 2, question: "This isn't my coat. It must be ___.", options: ["his", "he", "him"], correct: 0 },
-            { module: 2, question: "___ idea was brilliant!", options: ["Your", "Yours", "You"], correct: 0 },
-            { module: 2, question: "I like ___ new haircut.", options: ["your", "yours", "you"], correct: 0 },
-            { module: 2, question: "We sold ___ old car.", options: ["our", "ours", "us"], correct: 0 },
-            { module: 2, question: "The responsibility is ___.", options: ["theirs", "their", "them"], correct: 0 },
-            { module: 2, question: "___ shoes by the door are dirty.", options: ["Those", "That", "This"], correct: 0 },
-            { module: 2, question: "Is ___ seat taken?", options: ["this", "these", "those"], correct: 0 },
-            { module: 2, question: "The last letter of the alphabet is ___.", options: ["Z", "A", "Y"], correct: 0 },
-            { module: 2, question: "The first letter of your name is 'V' for Vinicius. What letter is it?", options: ["Vee", "F", "W"], correct: 0 },
-            { module: 2, question: "This is my sister. ___ name is Julia.", options: ["Her", "Hers", "She"], correct: 0 },
-            { module: 2, question: "The dog wagged ___ tail.", options: ["its", "it's", "it"], correct: 0 },
-            { module: 2, question: "Can I borrow ___ pen?", options: ["your", "yours", "you"], correct: 0 },
-            { module: 2, question: "The cat is black, but the kittens are ___. They belong to her.", options: ["hers", "her", "she"], correct: 0 },
-            { module: 2, question: "We have a new house. This house is ___.", options: ["ours", "our", "us"], correct: 0 },
-            { module: 2, question: "___ are the good old days.", options: ["These", "This", "That"], correct: 0 },
-            { module: 2, question: "Take ___ books with you.", options: ["these", "this", "that"], correct: 0 },
-            { module: 2, question: "How do you spell 'Hello'?", options: ["H-E-L-L-O", "H-E-L-O", "H-E-L-L-L-O"], correct: 0 },
-            { module: 2, question: "What letter is between 'Q' and 'S'?", options: ["R", "P", "T"], correct: 0 },
-            { module: 2, question: "My phone is old. ___ phone is new.", options: ["His", "He", "Him"], correct: 0 },
-            { module: 2, question: "These keys are not ___. Are they ___?", options: ["mine, yours", "my, your", "me, you"], correct: 0 },
-            { module: 2, question: "___ shirt is red.", options: ["My", "Mine", "Me"], correct: 0 },
-            { module: 2, question: "The ball is ___, not ___.", options: ["his, hers", "he, she", "him, her"], correct: 0 },
-            { module: 2, question: "___ apartment over there is new.", options: ["That", "Those", "These"], correct: 0 },
-            { module: 2, question: "___ phone here is ringing.", options: ["This", "These", "That"], correct: 0 },
-            { module: 2, question: "What's the 10th letter of the alphabet?", options: ["J", "K", "I"], correct: 0 },
-            { module: 2, question: "Is this coffee ___?", options: ["yours", "your", "you"], correct: 0 },
-            { module: 2, question: "They finished ___ project on time.", options: ["their", "theirs", "them"], correct: 0 },
-            { module: 2, question: "Are these gloves ___?", options: ["hers", "her", "she"], correct: 0 },
-            { module: 2, question: "I met ___ parents yesterday.", options: ["their", "theirs", "them"], correct: 0 },
-            { module: 2, question: "This laptop is ___. I bought it last week.", options: ["mine", "my", "me"], correct: 0 },
+            // Módulo 1: Present simple com TO BE, articles, numbers, etc.
+            { module: 1, question: "They ___ from Canada.", options: ["are", "is", "am"], correct: 0, explanation: "Usa-se 'are' com o pronome 'they' (eles/elas)." },
+            { module: 1, question: "I ___ a student.", options: ["am", "is", "are"], correct: 0, explanation: "Usa-se 'am' com o pronome 'I' (eu)." },
+            { module: 1, question: "She ___ a doctor.", options: ["is", "am", "are"], correct: 0, explanation: "Usa-se 'is' com os pronomes 'he', 'she' e 'it'." },
+            { module: 1, question: "This is ___ orange.", options: ["an", "a", "the"], correct: 0, explanation: "Usa-se o artigo 'an' antes de palavras com som de vogal, como 'orange'." },
+            { module: 1, question: "I have ___ cat.", options: ["a", "an", "the"], correct: 0, explanation: "Usa-se o artigo 'a' antes de palavras com som de consoante, como 'cat'." },
+            { module: 1, question: "How do you spell the number 20?", options: ["twenty", "twente", "twentty"], correct: 0, explanation: "A grafia correta para 20 é 'twenty'." },
+            { module: 1, question: "You use your ___ to see.", options: ["eyes", "hands", "ears"], correct: 0, explanation: "'Eyes' (olhos) são a parte do corpo usada para ver." },
+            { module: 1, question: "What is this? (An object to write with)", options: ["It's a pen", "It's an pen", "It is the pen"], correct: 0, explanation: "'A pen' é a forma correta. Usa-se 'a' antes de som de consoante." },
+            { module: 1, question: "We ___ happy to be here.", options: ["are", "is", "am"], correct: 0, explanation: "Usa-se 'are' com o pronome 'we' (nós)." },
+            { module: 1, question: "He ___ an engineer.", options: ["is", "are", "am"], correct: 0, explanation: "Usa-se 'is' com o pronome 'he' (ele)." },
+            { module: 1, question: "It ___ a beautiful day.", options: ["is", "are", "am"], correct: 0, explanation: "Usa-se 'is' com o pronome 'it'." },
+            { module: 1, question: "You ___ my best friend.", options: ["are", "is", "am"], correct: 0, explanation: "Usa-se 'are' com o pronome 'you' (você/vocês)." },
+            { module: 1, question: "There is ___ elephant in the zoo.", options: ["an", "a", "the"], correct: 0, explanation: "Usa-se 'an' antes de palavras com som de vogal, como 'elephant'." },
+            { module: 1, question: "Can I have ___ apple?", options: ["an", "a", "the"], correct: 0, explanation: "Usa-se 'an' antes de palavras com som de vogal, como 'apple'." },
+            { module: 1, question: "___ sun is very bright today.", options: ["The", "A", "An"], correct: 0, explanation: "Usa-se 'the' para substantivos únicos e específicos, como o sol (the sun)." },
+            { module: 1, question: "She is wearing ___ blue dress.", options: ["a", "an", "the"], correct: 0, explanation: "Usa-se 'a' antes de adjetivos com som de consoante, como 'blue'." },
+            { module: 1, question: "What is the number after sixty-nine?", options: ["seventy", "sixty-ten", "sixty-eight"], correct: 0, explanation: "O número depois de 69 (sixty-nine) é 70 (seventy)." },
+            { module: 1, question: "How do you write '13' in words?", options: ["thirteen", "thirty", "threeteen"], correct: 0, explanation: "A grafia correta para 13 é 'thirteen'. 'Thirty' é 30." },
+            { module: 1, question: "What is 100 - 50?", options: ["fifty", "fivety", "fiveteen"], correct: 0, explanation: "100 menos 50 é 50, que se escreve 'fifty'." },
+            { module: 1, question: "You use your ___ to hear music.", options: ["ears", "nose", "mouth"], correct: 0, explanation: "'Ears' (orelhas) são a parte do corpo usada para ouvir." },
+            { module: 1, question: "Your ___ is between your eyes and your mouth.", options: ["nose", "chin", "forehead"], correct: 0, explanation: "O 'nose' (nariz) fica entre os olhos e a boca." },
+            { module: 1, question: "You clap with your ___.", options: ["hands", "feet", "legs"], correct: 0, explanation: "Bate-se palmas com as 'hands' (mãos)." },
+            { module: 1, question: "A ___ is a place to sleep.", options: ["bed", "chair", "table"], correct: 0, explanation: "'Bed' (cama) é o objeto usado para dormir." },
+            { module: 1, question: "You sit on a ___.", options: ["chair", "sofa", "desk"], correct: 0, explanation: "Sentamos em uma 'chair' (cadeira)." },
+            { module: 1, question: "___ book on the table is mine.", options: ["The", "A", "An"], correct: 0, explanation: "Usa-se 'The' para se referir a um livro específico que está na mesa." },
+            { module: 1, question: "My brother and I ___ twins.", options: ["are", "is", "am"], correct: 0, explanation: "'My brother and I' equivale a 'we' (nós), então se usa 'are'." },
+            { module: 1, question: "This dog ___ very friendly.", options: ["is", "are", "am"], correct: 0, explanation: "'This dog' equivale a 'it', então se usa 'is'." },
+            { module: 1, question: "These flowers ___ for you.", options: ["are", "is", "am"], correct: 0, explanation: "'These flowers' equivale a 'they' (plural), então se usa 'are'." },
+            { module: 1, question: "I need ___ new computer.", options: ["a", "an", "the"], correct: 0, explanation: "Usa-se 'a' antes de 'new', que começa com som de consoante." },
+            { module: 1, question: "He is from ___ European country.", options: ["a", "an", "the"], correct: 0, explanation: "Apesar de 'European' começar com 'E', o som é de 'Y' (consoante), então usa-se 'a'." },
+            { module: 1, question: "The number before one is ___.", options: ["zero", "two", "ten"], correct: 0, explanation: "O número antes de 1 (one) é 0 (zero)." },
+            { module: 1, question: "How do you spell 8?", options: ["eight", "eigt", "height"], correct: 0, explanation: "A grafia correta para 8 é 'eight'." },
+            { module: 1, question: "You walk with your ___.", options: ["legs", "arms", "shoulders"], correct: 0, explanation: "Andamos com as 'legs' (pernas)." },
+            { module: 1, question: "You have ten ___ on your hands.", options: ["fingers", "toes", "nails"], correct: 0, explanation: "Temos 'fingers' (dedos) nas mãos e 'toes' (dedos) nos pés." },
+            { module: 1, question: "This is a ___ (object for drinking water).", options: ["glass", "plate", "fork"], correct: 0, explanation: "'Glass' (copo) é o objeto usado para beber água." },
+            { module: 1, question: "___ children are playing outside.", options: ["The", "A", "An"], correct: 0, explanation: "Usa-se 'The' para se referir a um grupo específico de crianças." },
+            { module: 1, question: "The car ___ red.", options: ["is", "are", "am"], correct: 0, explanation: "'The car' equivale a 'it', então se usa 'is'." },
+            { module: 1, question: "The cats ___ sleeping.", options: ["are", "is", "am"], correct: 0, explanation: "'The cats' (plural) equivale a 'they', então se usa 'are'." },
+            { module: 1, question: "I saw ___ interesting movie last night.", options: ["an", "a", "the"], correct: 0, explanation: "Usa-se 'an' antes de 'interesting', que começa com som de vogal." },
+            { module: 1, question: "She is ___ honest person.", options: ["an", "a", "the"], correct: 0, explanation: "Em 'honest', o 'h' é mudo, então o som é de vogal. Usa-se 'an'." },
+            { module: 1, question: "What is 11 + 4?", options: ["fifteen", "fiveteen", "fifty"], correct: 0, explanation: "11 mais 4 é 15, que se escreve 'fifteen'." },
+            { module: 1, question: "The number 90 in words is ___.", options: ["ninety", "ninty", "ninteen"], correct: 0, explanation: "A grafia correta para 90 é 'ninety'." },
+            { module: 1, question: "You smell with your ___.", options: ["nose", "eyes", "mouth"], correct: 0, explanation: "Sentimos cheiros com o 'nose' (nariz)." },
+            { module: 1, question: "The hair is on your ___.", options: ["head", "face", "neck"], correct: 0, explanation: "O cabelo fica na 'head' (cabeça)." },
+            { module: 1, question: "A ___ is used to unlock a door.", options: ["key", "lock", "handle"], correct: 0, explanation: "Usa-se uma 'key' (chave) para destrancar uma porta." },
+            { module: 1, question: "Where ___ you from?", options: ["are", "is", "am"], correct: 0, explanation: "Em perguntas com 'you', usa-se 'are'." },
+            { module: 1, question: "What ___ your name?", options: ["is", "are", "am"], correct: 0, explanation: "'Your name' equivale a 'it', então se usa 'is'." },
+            { module: 1, question: "How old ___ she?", options: ["is", "are", "am"], correct: 0, explanation: "Em perguntas com 'she', usa-se 'is'." },
+            { module: 1, question: "He has ___ unique talent.", options: ["a", "an", "the"], correct: 0, explanation: "Apesar de 'unique' começar com 'u', o som é de 'y' (consoante), então usa-se 'a'." },
+            { module: 1, question: "___ Pacific Ocean is the largest ocean.", options: ["The", "A", "An"], correct: 0, explanation: "Usa-se 'the' antes de nomes de oceanos, rios e mares." },
 
-            // Module 3: Subject/Object Pronouns, Time, Ordinal Numbers, Days, Months. (50 questions)
-            { module: 3, question: "Please give the report to ___.", options: ["him", "he", "his"], correct: 0 },
-            { module: 3, question: "___ are going to the cinema tonight.", options: ["We", "Us", "Our"], correct: 0 },
-            { module: 3, question: "I saw ___ at the party.", options: ["them", "they", "their"], correct: 0 },
-            { module: 3, question: "What time is it? It's a quarter past nine.", options: ["9:15", "9:45", "9:25"], correct: 0 },
-            { module: 3, question: "C is the ___ letter of the alphabet.", options: ["third", "three", "thirth"], correct: 0 },
-            { module: 3, question: "What month comes before January?", options: ["December", "February", "November"], correct: 0 },
-            { module: 3, question: "My birthday is ___ the fifth of May.", options: ["on", "in", "at"], correct: 0 },
-            { module: 3, question: "She told ___ a secret.", options: ["me", "I", "my"], correct: 0 },
-            { module: 3, question: "Can you help ___?", options: ["us", "we", "our"], correct: 0 },
-            { module: 3, question: "He is waiting for ___.", options: ["her", "she", "hers"], correct: 0 },
-            { module: 3, question: "What time is it? It's ten to seven.", options: ["6:50", "7:10", "10:07"], correct: 0 },
-            { module: 3, question: "What time is half past two?", options: ["2:30", "2:15", "3:30"], correct: 0 },
-            { module: 3, question: "New Year's Day is on the ___ of January.", options: ["first", "one", "oneth"], correct: 0 },
-            { module: 3, question: "He finished the race in ___ place.", options: ["second", "two", "twoth"], correct: 0 },
-            { module: 3, question: "What day is after Monday?", options: ["Tuesday", "Sunday", "Wednesday"], correct: 0 },
-            { module: 3, question: "The weekend is Saturday and ___.", options: ["Sunday", "Friday", "Monday"], correct: 0 },
-            { module: 3, question: "Which month has 28 or 29 days?", options: ["February", "March", "April"], correct: 0 },
-            { module: 3, question: "Christmas is ___ December.", options: ["in", "on", "at"], correct: 0 },
-            { module: 3, question: "The meeting is ___ 3 PM.", options: ["at", "on", "in"], correct: 0 },
-            { module: 3, question: "___ lives in that house.", options: ["He", "Him", "His"], correct: 0 },
-            { module: 3, question: "The teacher gave the test to ___.", options: ["us", "we", "our"], correct: 0 },
-            { module: 3, question: "Is that present for ___?", options: ["me", "I", "my"], correct: 0 },
-            { module: 3, question: "I'll call ___ later.", options: ["you", "your", "yours"], correct: 0 },
-            { module: 3, question: "What time is it? It's five o'clock.", options: ["5:00", "5:05", "5:30"], correct: 0 },
-            { module: 3, question: "A is the ___ letter of the alphabet.", options: ["first", "one", "oneth"], correct: 0 },
-            { module: 3, question: "The 12th month of the year is ___.", options: ["December", "November", "January"], correct: 0 },
-            { module: 3, question: "The day before Friday is ___.", options: ["Thursday", "Wednesday", "Saturday"], correct: 0 },
-            { module: 3, question: "Halloween is ___ October.", options: ["in", "on", "at"], correct: 0 },
-            { module: 3, question: "He sleeps ___ night.", options: ["at", "in", "on"], correct: 0 },
-            { module: 3, question: "My vacation is ___ August.", options: ["in", "on", "at"], correct: 0 },
-            { module: 3, question: "The movie starts ___ 8:30 PM.", options: ["at", "in", "on"], correct: 0 },
-            { module: 3, question: "She sent ___ an email.", options: ["him", "he", "his"], correct: 0 },
-            { module: 3, question: "They invited ___ to the party.", options: ["us", "we", "our"], correct: 0 },
-            { module: 3, question: "This is a photo of my family. Look at ___.", options: ["them", "they", "their"], correct: 0 },
-            { module: 3, question: "He is my brother. I love ___ very much.", options: ["him", "he", "his"], correct: 0 },
-            { module: 3, question: "What time is it? It's a quarter to three.", options: ["2:45", "3:15", "3:45"], correct: 0 },
-            { module: 3, question: "She came in ___ place in the competition.", options: ["fifth", "five", "fiveth"], correct: 0 },
-            { module: 3, question: "The ___ day of the week is Wednesday.", options: ["fourth", "third", "fifth"], correct: 0 },
-            { module: 3, question: "What month is between June and August?", options: ["July", "May", "September"], correct: 0 },
-            { module: 3, question: "The American Independence day is ___ July 4th.", options: ["on", "in", "at"], correct: 0 },
-            { module: 3, question: "The concert is ___ Saturday.", options: ["on", "in", "at"], correct: 0 },
-            { module: 3, question: "___ am from Brazil.", options: ["I", "Me", "My"], correct: 0 },
-            { module: 3, question: "The dog belongs to ___. Can you give it to ___?", options: ["her, her", "she, her", "her, she"], correct: 0 },
-            { module: 3, question: "What time do you wake up ___ the morning?", options: ["in", "on", "at"], correct: 0 },
-            { module: 3, question: "The 10th is spelled as ___.", options: ["tenth", "tienth", "tennth"], correct: 0 },
-            { module: 3, question: "Which day comes two days after Sunday?", options: ["Tuesday", "Monday", "Wednesday"], correct: 0 },
-            { module: 3, question: "My birthday is ___ September.", options: ["in", "on", "at"], correct: 0 },
-            { module: 3, question: "The shops close ___ midnight.", options: ["at", "in", "on"], correct: 0 },
-            { module: 3, question: "Please pass the salt to ___.", options: ["me", "I", "my"], correct: 0 },
-            { module: 3, question: "___ don't understand the question.", options: ["They", "Them", "Their"], correct: 0 },
-            
-            // Module 4: Present simple with do, WH-questions. (50 questions)
-            { module: 4, question: "___ you speak Spanish?", options: ["Do", "Does", "Are"], correct: 0 },
-            { module: 4, question: "He ___ play the guitar.", options: ["doesn't", "don't", "isn't"], correct: 0 },
-            { module: 4, question: "___ does your brother live?", options: ["Where", "What", "Who"], correct: 0 },
-            { module: 4, question: "___ do you go to bed so late?", options: ["Why", "When", "How"], correct: 0 },
-            { module: 4, question: "She ___ to the gym every morning.", options: ["goes", "go", "is going"], correct: 0 },
-            { module: 4, question: "We ___ like to watch horror movies.", options: ["don't", "doesn't", "aren't"], correct: 0 },
-            { module: 4, question: "___ time does the meeting start?", options: ["What", "Where", "Who"], correct: 0 },
-            { module: 4, question: "___ she work in an office?", options: ["Does", "Do", "Is"], correct: 0 },
-            { module: 4, question: "They ___ have any pets.", options: ["don't", "doesn't", "haven't"], correct: 0 },
-            { module: 4, question: "My sister ___ coffee.", options: ["drinks", "drink", "is drinking"], correct: 0 },
-            { module: 4, question: "___ are you crying?", options: ["Why", "What", "Who"], correct: 0 },
-            { module: 4, question: "___ is your favorite color?", options: ["What", "Which", "Who"], correct: 0 },
-            { module: 4, question: "___ do you travel to work?", options: ["How", "What", "Why"], correct: 0 },
-            { module: 4, question: "I ___ understand this lesson.", options: ["don't", "doesn't", "am not"], correct: 0 },
-            { module: 4, question: "The sun ___ in the east.", options: ["rises", "rise", "is rising"], correct: 0 },
-            { module: 4, question: "___ your parents know you are here?", options: ["Do", "Does", "Are"], correct: 0 },
-            { module: 4, question: "He ___ his emails every morning.", options: ["checks", "check", "is checking"], correct: 0 },
-            { module: 4, question: "She ___ want to go out tonight.", options: ["doesn't", "don't", "isn't"], correct: 0 },
-            { module: 4, question: "___ is your birthday?", options: ["When", "Where", "What"], correct: 0 },
-            { module: 4, question: "___ is that man talking to your sister?", options: ["Who", "What", "Which"], correct: 0 },
-            { module: 4, question: "___ much does this cost?", options: ["How", "What", "Why"], correct: 0 },
-            { module: 4, question: "We ___ in a small apartment.", options: ["live", "lives", "are living"], correct: 0 },
-            { module: 4, question: "My cat ___ to sleep on the sofa.", options: ["likes", "like", "is liking"], correct: 0 },
-            { module: 4, question: "You ___ need to finish this today.", options: ["don't", "doesn't", "aren't"], correct: 0 },
-            { module: 4, question: "___ he have a car?", options: ["Does", "Do", "Has"], correct: 0 },
-            { module: 4, question: "___ do they go on vacation every year?", options: ["Where", "When", "Why"], correct: 0 },
-            { module: 4, question: "___ kind of music do you like?", options: ["What", "Which", "How"], correct: 0 },
-            { module: 4, question: "She ___ English and French.", options: ["speaks", "speak", "is speaking"], correct: 0 },
-            { module: 4, question: "It ___ rain much in the desert.", options: ["doesn't", "don't", "isn't"], correct: 0 },
-            { module: 4, question: "___ you usually do on weekends?", options: ["What do", "What are", "Do what"], correct: 0 },
-            { module: 4, question: "He ___ his car every Sunday.", options: ["washes", "wash", "is washing"], correct: 0 },
-            { module: 4, question: "I ___ think that's a good idea.", options: ["don't", "doesn't", "am not"], correct: 0 },
-            { module: 4, question: "___ she visit her grandparents often?", options: ["Does", "Do", "Is"], correct: 0 },
-            { module: 4, question: "___ is the capital of France?", options: ["What", "Where", "Who"], correct: 0 },
-            { module: 4, question: "___ old are you?", options: ["How", "What", "When"], correct: 0 },
-            { module: 4, question: "They ___ a lot of books.", options: ["read", "reads", "are reading"], correct: 0 },
-            { module: 4, question: "He ___ seem very happy.", options: ["doesn't", "don't", "isn't"], correct: 0 },
-            { module: 4, question: "___ your dog bark a lot?", options: ["Does", "Do", "Is"], correct: 0 },
-            { module: 4, question: "___ is the nearest bank?", options: ["Where", "When", "What"], correct: 0 },
-            { module: 4, question: "___ are you from?", options: ["Where", "How", "What"], correct: 0 },
-            { module: 4, question: "___ is knocking on the door?", options: ["Who", "What", "Where"], correct: 0 },
-            { module: 4, question: "The train ___ at 10 AM.", options: ["leaves", "leave", "is leaving"], correct: 0 },
-            { module: 4, question: "My parents ___ in São Paulo.", options: ["live", "lives", "are living"], correct: 0 },
-            { module: 4, question: "You ___ a beautiful voice.", options: ["have", "has", "are having"], correct: 0 },
-            { module: 4, question: "The earth ___ around the sun.", options: ["goes", "go", "is going"], correct: 0 },
-            { module: 4, question: "___ you believe in ghosts?", options: ["Do", "Are", "Does"], correct: 0 },
-            { module: 4, question: "___ often do you exercise?", options: ["How", "What", "When"], correct: 0 },
-            { module: 4, question: "___ is that strange noise?", options: ["What", "Who", "Why"], correct: 0 },
-            { module: 4, question: "He ___ wear glasses.", options: ["doesn't", "don't", "isn't"], correct: 0 },
-            { module: 4, question: "She ___ to work by bus.", options: ["travels", "travel", "is traveling"], correct: 0 }
+            // Módulo 2: Pronomes, Alfabeto
+            { module: 2, question: "This car is ___. It belongs to me.", options: ["mine", "my", "me"], correct: 0, explanation: "'Mine' é um pronome possessivo. 'My' é um adjetivo possessivo (ex: my car)." },
+            { module: 2, question: "That is ___ house.", options: ["her", "hers", "she"], correct: 0, explanation: "'Her' é um adjetivo possessivo, usado antes de um substantivo (house)." },
+            { module: 2, question: "___ are my friends over there.", options: ["Those", "This", "That"], correct: 0, explanation: "'Those' é um pronome demonstrativo para plural e à distância." },
+            { module: 2, question: "Is this your book? No, it's ___.", options: ["his", "he", "him"], correct: 0, explanation: "'His' pode ser tanto adjetivo (his book) quanto pronome possessivo (it's his)." },
+            { module: 2, question: "What's the fifth letter of the alphabet?", options: ["E", "F", "D"], correct: 0, explanation: "A quinta letra do alfabeto é 'E'." },
+            { module: 2, question: "___ computer is very fast.", options: ["Their", "Theirs", "Them"], correct: 0, explanation: "'Their' é um adjetivo possessivo, usado antes de um substantivo (computer)." },
+            { module: 2, question: "The blue bike is ___.", options: ["ours", "our", "us"], correct: 0, explanation: "'Ours' é um pronome possessivo, indicando que a bicicleta pertence a 'nós'." },
+            { module: 2, question: "I can't find ___ keys.", options: ["my", "mine", "me"], correct: 0, explanation: "'My' é um adjetivo possessivo, usado antes do substantivo 'keys'." },
+            { module: 2, question: "Look at ___ bird in the tree.", options: ["that", "those", "these"], correct: 0, explanation: "'That' é um pronome demonstrativo para singular e à distância." },
+            { module: 2, question: "___ cookies are delicious. Try one!", options: ["These", "This", "That"], correct: 0, explanation: "'These' é um pronome demonstrativo para plural e próximo." },
+            { module: 2, question: "The decision is ___.", options: ["yours", "your", "you"], correct: 0, explanation: "'Yours' é um pronome possessivo, indicando que a decisão é sua." },
+            { module: 2, question: "She introduced me to ___ brother.", options: ["her", "hers", "she"], correct: 0, explanation: "'Her' é um adjetivo possessivo, usado antes do substantivo 'brother'." },
+            { module: 2, question: "Is that ___ car? No, it's not mine.", options: ["your", "yours", "you"], correct: 0, explanation: "'Your' é um adjetivo possessivo, usado antes do substantivo 'car'." },
+            { module: 2, question: "He forgot ___ homework.", options: ["his", "him", "he"], correct: 0, explanation: "'His' é um adjetivo possessivo, indicando que o dever de casa é dele." },
+            { module: 2, question: "The cat is washing ___ paws.", options: ["its", "it's", "it"], correct: 0, explanation: "'Its' é o pronome possessivo para 'it'. 'It's' é a contração de 'it is'." },
+            { module: 2, question: "How do you spell 'Apple'?", options: ["A-P-P-L-E", "A-P-L-E", "A-P-P-L"], correct: 0, explanation: "A soletração correta de 'Apple' é A-P-P-L-E." },
+            { module: 2, question: "What letter comes after 'M'?", options: ["N", "L", "O"], correct: 0, explanation: "A letra que vem depois do 'M' no alfabeto é 'N'." },
+            { module: 2, question: "Which letter is a vowel?", options: ["U", "T", "S"], correct: 0, explanation: "As vogais em inglês são A, E, I, O, U. 'U' é uma vogal." },
+            { module: 2, question: "The house is big. ___ windows are large.", options: ["Its", "It's", "It"], correct: 0, explanation: "'Its' é o possessivo para 'it' (a casa). 'It's' significa 'it is'." },
+            { module: 2, question: "Don't touch that! It's not ___.", options: ["yours", "your", "you"], correct: 0, explanation: "'Yours' é o pronome possessivo. 'Your' precisaria de um substantivo (your thing)." },
+            { module: 2, question: "This isn't my coat. It must be ___.", options: ["his", "he", "him"], correct: 0, explanation: "'His' como pronome possessivo significa 'dele'." },
+            { module: 2, question: "___ idea was brilliant!", options: ["Your", "Yours", "You"], correct: 0, explanation: "'Your' é o adjetivo possessivo, usado antes do substantivo 'idea'." },
+            { module: 2, question: "I like ___ new haircut.", options: ["your", "yours", "you"], correct: 0, explanation: "'Your' é o adjetivo possessivo, usado antes de 'new haircut'." },
+            { module: 2, question: "We sold ___ old car.", options: ["our", "ours", "us"], correct: 0, explanation: "'Our' é o adjetivo possessivo, usado antes de 'old car'." },
+            { module: 2, question: "The responsibility is ___.", options: ["theirs", "their", "them"], correct: 0, explanation: "'Theirs' é o pronome possessivo, significando 'deles/delas'." },
+            { module: 2, question: "___ shoes by the door are dirty.", options: ["Those", "That", "This"], correct: 0, explanation: "'Those' é usado para plural e à distância (sapatos perto da porta)." },
+            { module: 2, question: "Is ___ seat taken?", options: ["this", "these", "those"], correct: 0, explanation: "'This' é usado para singular e próximo (este assento)." },
+            { module: 2, question: "The last letter of the alphabet is ___.", options: ["Z", "A", "Y"], correct: 0, explanation: "A última letra do alfabeto inglês é 'Z'." },
+            { module: 2, question: "The first letter of your name is 'V' for Vinicius. What letter is it?", options: ["Vee", "F", "W"], correct: 0, explanation: "A pronúncia da letra 'V' em inglês é 'Vee'." },
+            { module: 2, question: "This is my sister. ___ name is Julia.", options: ["Her", "Hers", "She"], correct: 0, explanation: "'Her' é o adjetivo possessivo feminino, usado antes de 'name'." },
+            { module: 2, question: "The dog wagged ___ tail.", options: ["its", "it's", "it"], correct: 0, explanation: "'Its' é o possessivo para animais/objetos. 'It's' é 'it is'." },
+            { module: 2, question: "Can I borrow ___ pen?", options: ["your", "yours", "you"], correct: 0, explanation: "'Your' é o adjetivo possessivo, usado antes de 'pen'." },
+            { module: 2, question: "The cat is black, but the kittens are ___. They belong to her.", options: ["hers", "her", "she"], correct: 0, explanation: "'Hers' é o pronome possessivo feminino. 'Her' precisaria de um substantivo." },
+            { module: 2, question: "We have a new house. This house is ___.", options: ["ours", "our", "us"], correct: 0, explanation: "'Ours' é o pronome possessivo para 'nós'." },
+            { module: 2, question: "___ are the good old days.", options: ["These", "This", "That"], correct: 0, explanation: "'These' é o demonstrativo para plural e próximo (estes dias)." },
+            { module: 2, question: "Take ___ books with you.", options: ["these", "this", "that"], correct: 0, explanation: "'These' é o demonstrativo para plural e próximo (estes livros)." },
+            { module: 2, question: "How do you spell 'Hello'?", options: ["H-E-L-L-O", "H-E-L-O", "H-E-L-L-L-O"], correct: 0, explanation: "A soletração correta para 'Hello' é H-E-L-L-O." },
+            { module: 2, question: "What letter is between 'Q' and 'S'?", options: ["R", "P", "T"], correct: 0, explanation: "A letra 'R' fica entre 'Q' e 'S' no alfabeto." },
+            { module: 2, question: "My phone is old. ___ phone is new.", options: ["His", "He", "Him"], correct: 0, explanation: "'His' é o adjetivo possessivo masculino, usado antes de 'phone'." },
+            { module: 2, question: "These keys are not ___. Are they ___?", options: ["mine, yours", "my, your", "me, you"], correct: 0, explanation: "A frase usa dois pronomes possessivos: 'mine' (meu) e 'yours' (seu)." },
+            { module: 2, question: "___ shirt is red.", options: ["My", "Mine", "Me"], correct: 0, explanation: "'My' é o adjetivo possessivo, usado antes do substantivo 'shirt'." },
+            { module: 2, question: "The ball is ___, not ___.", options: ["his, hers", "he, she", "him, her"], correct: 0, explanation: "A frase usa dois pronomes possessivos: 'his' (dele) e 'hers' (dela)." },
+            { module: 2, question: "___ apartment over there is new.", options: ["That", "Those", "These"], correct: 0, explanation: "'That' é usado para singular e à distância (aquele apartamento)." },
+            { module: 2, question: "___ phone here is ringing.", options: ["This", "These", "That"], correct: 0, explanation: "'This' é usado para singular e próximo (este telefone)." },
+            { module: 2, question: "What's the 10th letter of the alphabet?", options: ["J", "K", "I"], correct: 0, explanation: "A décima letra do alfabeto é 'J'." },
+            { module: 2, question: "Is this coffee ___?", options: ["yours", "your", "you"], correct: 0, explanation: "'Yours' é o pronome possessivo. A pergunta é 'Este café é seu?'" },
+            { module: 2, question: "They finished ___ project on time.", options: ["their", "theirs", "them"], correct: 0, explanation: "'Their' é o adjetivo possessivo, usado antes de 'project'." },
+            { module: 2, question: "Are these gloves ___?", options: ["hers", "her", "she"], correct: 0, explanation: "'Hers' é o pronome possessivo feminino. A pergunta é 'Estas luvas são dela?'" },
+            { module: 2, question: "I met ___ parents yesterday.", options: ["their", "theirs", "them"], correct: 0, explanation: "'Their' é o adjetivo possessivo para 'deles/delas'." },
+            { module: 2, question: "This laptop is ___. I bought it last week.", options: ["mine", "my", "me"], correct: 0, explanation: "'Mine' é o pronome possessivo para 'meu'." },
+
+            // Módulo 3: Pronomes, Tempo, Datas
+            { module: 3, question: "Please give the report to ___.", options: ["him", "he", "his"], correct: 0, explanation: "'Him' é um pronome objeto, usado após preposições como 'to'." },
+            { module: 3, question: "___ are going to the cinema tonight.", options: ["We", "Us", "Our"], correct: 0, explanation: "'We' é um pronome sujeito, que realiza a ação do verbo 'are going'." },
+            { module: 3, question: "I saw ___ at the party.", options: ["them", "they", "their"], correct: 0, explanation: "'Them' é um pronome objeto, que recebe a ação do verbo 'saw'." },
+            { module: 3, question: "What time is it? It's a quarter past nine.", options: ["9:15", "9:45", "9:25"], correct: 0, explanation: "'A quarter past' significa 15 minutos depois da hora. 9:15." },
+            { module: 3, question: "C is the ___ letter of the alphabet.", options: ["third", "three", "thirth"], correct: 0, explanation: "Para ordem, usa-se o número ordinal 'third' (terceiro)." },
+            { module: 3, question: "What month comes before January?", options: ["December", "February", "November"], correct: 0, explanation: "O mês antes de janeiro é dezembro." },
+            { module: 3, question: "My birthday is ___ the fifth of May.", options: ["on", "in", "at"], correct: 0, explanation: "Usa-se a preposição 'on' para datas específicas." },
+            { module: 3, question: "She told ___ a secret.", options: ["me", "I", "my"], correct: 0, explanation: "'Me' é um pronome objeto. 'Ela me contou um segredo.'" },
+            { module: 3, question: "Can you help ___?", options: ["us", "we", "our"], correct: 0, explanation: "'Us' é um pronome objeto, recebendo a ação do verbo 'help'." },
+            { module: 3, question: "He is waiting for ___.", options: ["her", "she", "hers"], correct: 0, explanation: "'Her' é um pronome objeto, usado após preposições como 'for'." },
+            { module: 3, question: "What time is it? It's ten to seven.", options: ["6:50", "7:10", "10:07"], correct: 0, explanation: "'Ten to seven' significa 'dez para as sete', ou 6:50." },
+            { module: 3, question: "What time is half past two?", options: ["2:30", "2:15", "3:30"], correct: 0, explanation: "'Half past two' significa 'duas e meia', ou 2:30." },
+            { module: 3, question: "New Year's Day is on the ___ of January.", options: ["first", "one", "oneth"], correct: 0, explanation: "O ordinal para 1 é 'first' (primeiro)." },
+            { module: 3, question: "He finished the race in ___ place.", options: ["second", "two", "twoth"], correct: 0, explanation: "O ordinal para 2 é 'second' (segundo)." },
+            { module: 3, question: "What day is after Monday?", options: ["Tuesday", "Sunday", "Wednesday"], correct: 0, explanation: "O dia depois de segunda-feira (Monday) é terça-feira (Tuesday)." },
+            { module: 3, question: "The weekend is Saturday and ___.", options: ["Sunday", "Friday", "Monday"], correct: 0, explanation: "O fim de semana (weekend) é composto por sábado (Saturday) e domingo (Sunday)." },
+            { module: 3, question: "Which month has 28 or 29 days?", options: ["February", "March", "April"], correct: 0, explanation: "Fevereiro (February) é o mês que tem 28 ou 29 dias (em anos bissextos)." },
+            { module: 3, question: "Christmas is ___ December.", options: ["in", "on", "at"], correct: 0, explanation: "Usa-se a preposição 'in' para meses." },
+            { module: 3, question: "The meeting is ___ 3 PM.", options: ["at", "on", "in"], correct: 0, explanation: "Usa-se a preposição 'at' para horas." },
+            { module: 3, question: "___ lives in that house.", options: ["He", "Him", "His"], correct: 0, explanation: "'He' é um pronome sujeito, que realiza a ação de 'lives'." },
+            { module: 3, question: "The teacher gave the test to ___.", options: ["us", "we", "our"], correct: 0, explanation: "'Us' é um pronome objeto, usado após a preposição 'to'." },
+            { module: 3, question: "Is that present for ___?", options: ["me", "I", "my"], correct: 0, explanation: "'Me' é um pronome objeto, usado após a preposição 'for'." },
+            { module: 3, question: "I'll call ___ later.", options: ["you", "your", "yours"], correct: 0, explanation: "'You' pode ser tanto pronome sujeito quanto objeto. Aqui, é objeto." },
+            { module: 3, question: "What time is it? It's five o'clock.", options: ["5:00", "5:05", "5:30"], correct: 0, explanation: "'O'clock' é usado para horas cheias, como 5:00." },
+            { module: 3, question: "A is the ___ letter of the alphabet.", options: ["first", "one", "oneth"], correct: 0, explanation: "O ordinal para a primeira posição é 'first'." },
+            { module: 3, question: "The 12th month of the year is ___.", options: ["December", "November", "January"], correct: 0, explanation: "O 12º e último mês do ano é dezembro (December)." },
+            { module: 3, question: "The day before Friday is ___.", options: ["Thursday", "Wednesday", "Saturday"], correct: 0, explanation: "O dia antes de sexta-feira (Friday) é quinta-feira (Thursday)." },
+            { module: 3, question: "Halloween is ___ October.", options: ["in", "on", "at"], correct: 0, explanation: "Usa-se a preposição 'in' para meses." },
+            { module: 3, question: "He sleeps ___ night.", options: ["at", "in", "on"], correct: 0, explanation: "A expressão correta é 'at night' (à noite)." },
+            { module: 3, question: "My vacation is ___ August.", options: ["in", "on", "at"], correct: 0, explanation: "Usa-se 'in' para meses." },
+            { module: 3, question: "The movie starts ___ 8:30 PM.", options: ["at", "in", "on"], correct: 0, explanation: "Usa-se 'at' para horas." },
+            { module: 3, question: "She sent ___ an email.", options: ["him", "he", "his"], correct: 0, explanation: "'Him' é um pronome objeto. 'Ela enviou um email para ele.'" },
+            { module: 3, question: "They invited ___ to the party.", options: ["us", "we", "our"], correct: 0, explanation: "'Us' é o pronome objeto para 'nós'." },
+            { module: 3, question: "This is a photo of my family. Look at ___.", options: ["them", "they", "their"], correct: 0, explanation: "'Them' é o pronome objeto para 'eles/elas' (a família)." },
+            { module: 3, question: "He is my brother. I love ___ very much.", options: ["him", "he", "his"], correct: 0, explanation: "'Him' é o pronome objeto para 'ele'." },
+            { module: 3, question: "What time is it? It's a quarter to three.", options: ["2:45", "3:15", "3:45"], correct: 0, explanation: "'A quarter to three' significa 'quinze para as três', ou 2:45." },
+            { module: 3, question: "She came in ___ place in the competition.", options: ["fifth", "five", "fiveth"], correct: 0, explanation: "O ordinal de 5 é 'fifth' (quinto)." },
+            { module: 3, question: "The ___ day of the week is Wednesday.", options: ["fourth", "third", "fifth"], correct: 0, explanation: "Considerando domingo o primeiro, quarta-feira é o quarto (fourth) dia." },
+            { module: 3, question: "What month is between June and August?", options: ["July", "May", "September"], correct: 0, explanation: "Julho (July) fica entre junho e agosto." },
+            { module: 3, question: "The American Independence day is ___ July 4th.", options: ["on", "in", "at"], correct: 0, explanation: "Usa-se 'on' para datas completas (mês e dia)." },
+            { module: 3, question: "The concert is ___ Saturday.", options: ["on", "in", "at"], correct: 0, explanation: "Usa-se 'on' para dias da semana." },
+            { module: 3, question: "___ am from Brazil.", options: ["I", "Me", "My"], correct: 0, explanation: "'I' é o pronome sujeito que concorda com 'am'." },
+            { module: 3, question: "The dog belongs to ___. Can you give it to ___?", options: ["her, her", "she, her", "her, she"], correct: 0, explanation: "Ambos os casos pedem o pronome objeto 'her'." },
+            { module: 3, question: "What time do you wake up ___ the morning?", options: ["in", "on", "at"], correct: 0, explanation: "A expressão correta é 'in the morning' (de manhã)." },
+            { module: 3, question: "The 10th is spelled as ___.", options: ["tenth", "tienth", "tennth"], correct: 0, explanation: "A forma ordinal de 10 é 'tenth'." },
+            { module: 3, question: "Which day comes two days after Sunday?", options: ["Tuesday", "Monday", "Wednesday"], correct: 0, explanation: "Dois dias depois de domingo é terça-feira (Tuesday)." },
+            { module: 3, question: "My birthday is ___ September.", options: ["in", "on", "at"], correct: 0, explanation: "Usa-se 'in' para meses." },
+            { module: 3, question: "The shops close ___ midnight.", options: ["at", "in", "on"], correct: 0, explanation: "A expressão correta é 'at midnight' (à meia-noite)." },
+            { module: 3, question: "Please pass the salt to ___.", options: ["me", "I", "my"], correct: 0, explanation: "'Me' é o pronome objeto, usado após a preposição 'to'." },
+            { module: 3, question: "___ don't understand the question.", options: ["They", "Them", "Their"], correct: 0, explanation: "'They' é o pronome sujeito que realiza a ação de 'don't understand'." },
+
+            // Módulo 4: Present Simple, WH-Questions
+            { module: 4, question: "___ you speak Spanish?", options: ["Do", "Does", "Are"], correct: 0, explanation: "Usa-se o auxiliar 'Do' para perguntas com 'you' no Present Simple." },
+            { module: 4, question: "He ___ play the guitar.", options: ["doesn't", "don't", "isn't"], correct: 0, explanation: "Usa-se 'doesn't' (does not) para negativas com 'he' no Present Simple." },
+            { module: 4, question: "___ does your brother live?", options: ["Where", "What", "Who"], correct: 0, explanation: "'Where' é a WH-question para perguntar sobre lugar." },
+            { module: 4, question: "___ do you go to bed so late?", options: ["Why", "When", "How"], correct: 0, explanation: "'Why' é a WH-question para perguntar sobre o motivo." },
+            { module: 4, question: "She ___ to the gym every morning.", options: ["goes", "go", "is going"], correct: 0, explanation: "No Present Simple, para 'she', o verbo 'go' se torna 'goes'." },
+            { module: 4, question: "We ___ like to watch horror movies.", options: ["don't", "doesn't", "aren't"], correct: 0, explanation: "Usa-se 'don't' (do not) para negativas com 'we' no Present Simple." },
+            { module: 4, question: "___ time does the meeting start?", options: ["What", "Where", "Who"], correct: 0, explanation: "'What time' é a expressão usada para perguntar as horas." },
+            { module: 4, question: "___ she work in an office?", options: ["Does", "Do", "Is"], correct: 0, explanation: "Usa-se o auxiliar 'Does' para perguntas com 'she' no Present Simple." },
+            { module: 4, question: "They ___ have any pets.", options: ["don't", "doesn't", "haven't"], correct: 0, explanation: "Usa-se 'don't' para negativas com 'they' no Present Simple." },
+            { module: 4, question: "My sister ___ coffee.", options: ["drinks", "drink", "is drinking"], correct: 0, explanation: "Para 'My sister' (she), o verbo 'drink' recebe 's' -> 'drinks'." },
+            { module: 4, question: "___ are you crying?", options: ["Why", "What", "Who"], correct: 0, explanation: "'Why' é usado para perguntar a razão ou o motivo." },
+            { module: 4, question: "___ is your favorite color?", options: ["What", "Which", "Who"], correct: 0, explanation: "'What' é usado para perguntar sobre algo em geral." },
+            { module: 4, question: "___ do you travel to work?", options: ["How", "What", "Why"], correct: 0, explanation: "'How' é usado para perguntar sobre o modo ou a maneira." },
+            { module: 4, question: "I ___ understand this lesson.", options: ["don't", "doesn't", "am not"], correct: 0, explanation: "Usa-se 'don't' para negativas com 'I' no Present Simple." },
+            { module: 4, question: "The sun ___ in the east.", options: ["rises", "rise", "is rising"], correct: 0, explanation: "Para 'The sun' (it), o verbo 'rise' recebe 's' -> 'rises'." },
+            { module: 4, question: "___ your parents know you are here?", options: ["Do", "Does", "Are"], correct: 0, explanation: "Para 'your parents' (they), usa-se o auxiliar 'Do'." },
+            { module: 4, question: "He ___ his emails every morning.", options: ["checks", "check", "is checking"], correct: 0, explanation: "Para 'he', o verbo 'check' recebe 's' -> 'checks'." },
+            { module: 4, question: "She ___ want to go out tonight.", options: ["doesn't", "don't", "isn't"], correct: 0, explanation: "Usa-se 'doesn't' para negativas com 'she'." },
+            { module: 4, question: "___ is your birthday?", options: ["When", "Where", "What"], correct: 0, explanation: "'When' é usado para perguntar sobre tempo/data." },
+            { module: 4, question: "___ is that man talking to your sister?", options: ["Who", "What", "Which"], correct: 0, explanation: "'Who' é usado para perguntar sobre pessoas." },
+            { module: 4, question: "___ much does this cost?", options: ["How", "What", "Why"], correct: 0, explanation: "'How much' é a expressão usada para perguntar sobre preço." },
+            { module: 4, question: "We ___ in a small apartment.", options: ["live", "lives", "are living"], correct: 0, explanation: "Com 'we', o verbo no Present Simple fica na forma base." },
+            { module: 4, question: "My cat ___ to sleep on the sofa.", options: ["likes", "like", "is liking"], correct: 0, explanation: "Para 'My cat' (it), o verbo 'like' recebe 's' -> 'likes'." },
+            { module: 4, question: "You ___ need to finish this today.", options: ["don't", "doesn't", "aren't"], correct: 0, explanation: "Usa-se 'don't' para negativas com 'you'." },
+            { module: 4, question: "___ he have a car?", options: ["Does", "Do", "Has"], correct: 0, explanation: "Para perguntas com 'he', usa-se 'Does' e o verbo principal na forma base ('have')." },
+            { module: 4, question: "___ do they go on vacation every year?", options: ["Where", "When", "Why"], correct: 0, explanation: "'Where' é usado para perguntar sobre o destino/lugar." },
+            { module: 4, question: "___ kind of music do you like?", options: ["What", "Which", "How"], correct: 0, explanation: "'What kind' é a expressão usada para perguntar sobre tipos de algo." },
+            { module: 4, question: "She ___ English and French.", options: ["speaks", "speak", "is speaking"], correct: 0, explanation: "Para 'she', o verbo 'speak' recebe 's' -> 'speaks'." },
+            { module: 4, question: "It ___ rain much in the desert.", options: ["doesn't", "don't", "isn't"], correct: 0, explanation: "Usa-se 'doesn't' para negativas com 'it'." },
+            { module: 4, question: "___ you usually do on weekends?", options: ["What do", "What are", "Do what"], correct: 0, explanation: "A estrutura correta da pergunta é 'What do you...?'" },
+            { module: 4, question: "He ___ his car every Sunday.", options: ["washes", "wash", "is washing"], correct: 0, explanation: "Para 'he', o verbo 'wash' termina em 'sh', então adiciona-se 'es' -> 'washes'." },
+            { module: 4, question: "I ___ think that's a good idea.", options: ["don't", "doesn't", "am not"], correct: 0, explanation: "Usa-se 'don't' para negativas com 'I'." },
+            { module: 4, question: "___ she visit her grandparents often?", options: ["Does", "Do", "Is"], correct: 0, explanation: "Usa-se 'Does' para perguntas com 'she'." },
+            { module: 4, question: "___ is the capital of France?", options: ["What", "Where", "Who"], correct: 0, explanation: "'What' é usado para perguntar sobre uma informação específica." },
+            { module: 4, question: "___ old are you?", options: ["How", "What", "When"], correct: 0, explanation: "'How old' é a expressão usada para perguntar a idade." },
+            { module: 4, question: "They ___ a lot of books.", options: ["read", "reads", "are reading"], correct: 0, explanation: "Com 'they', o verbo fica na forma base." },
+            { module: 4, question: "He ___ seem very happy.", options: ["doesn't", "don't", "isn't"], correct: 0, explanation: "Usa-se 'doesn't' para negativas com 'he'." },
+            { module: 4, question: "___ your dog bark a lot?", options: ["Does", "Do", "Is"], correct: 0, explanation: "Para 'your dog' (it), usa-se o auxiliar 'Does'." },
+            { module: 4, question: "___ is the nearest bank?", options: ["Where", "When", "What"], correct: 0, explanation: "'Where' é usado para perguntar sobre a localização." },
+            { module: 4, question: "___ are you from?", options: ["Where", "How", "What"], correct: 0, explanation: "A pergunta padrão para origem é 'Where are you from?'" },
+            { module: 4, question: "___ is knocking on the door?", options: ["Who", "What", "Where"], correct: 0, explanation: "'Who' é usado para perguntar sobre a pessoa que está realizando a ação." },
+            { module: 4, question: "The train ___ at 10 AM.", options: ["leaves", "leave", "is leaving"], correct: 0, explanation: "Para 'The train' (it), o verbo 'leave' recebe 's' -> 'leaves'." },
+            { module: 4, question: "My parents ___ in São Paulo.", options: ["live", "lives", "are living"], correct: 0, explanation: "Para 'My parents' (they), o verbo fica na forma base." },
+            { module: 4, question: "You ___ a beautiful voice.", options: ["have", "has", "are having"], correct: 0, explanation: "Com 'you', usa-se 'have'." },
+            { module: 4, question: "The earth ___ around the sun.", options: ["goes", "go", "is going"], correct: 0, explanation: "Para 'The earth' (it), o verbo 'go' se torna 'goes'." },
+            { module: 4, question: "___ you believe in ghosts?", options: ["Do", "Are", "Does"], correct: 0, explanation: "Usa-se o auxiliar 'Do' para perguntas com 'you'." },
+            { module: 4, question: "___ often do you exercise?", options: ["How", "What", "When"], correct: 0, explanation: "'How often' é a expressão usada para perguntar sobre frequência." },
+            { module: 4, question: "___ is that strange noise?", options: ["What", "Who", "Why"], correct: 0, explanation: "'What' é usado para perguntar sobre coisas ou sons." },
+            { module: 4, question: "He ___ wear glasses.", options: ["doesn't", "don't", "isn't"], correct: 0, explanation: "Usa-se 'doesn't' para negativas com 'he'." },
+            { module: 4, question: "She ___ to work by bus.", options: ["travels", "travel", "is traveling"], correct: 0, explanation: "Para 'she', o verbo 'travel' recebe 's' -> 'travels'." }
         ];
         
-        // --- GAME ELEMENTS ---
+        // --- ELEMENTOS DO JOGO ---
         const moduleSelectionDiv = document.getElementById('module-selection');
         const gameAreaDiv = document.getElementById('game-area');
         const moduleTitleEl = document.getElementById('module-title');
@@ -378,10 +399,11 @@
         const progressBar = document.querySelector('.progress-bar');
         const backToMenuBtn = document.getElementById('back-to-menu-btn');
         
-        // --- GAME STATE ---
+        // --- ESTADO DO JOGO ---
         let currentModuleQuestions = [];
         let currentQuestionIndex = 0;
         let score = 0;
+        let wrongAnswers = []; // Array para guardar os erros
         let scoreModal;
 
         // --- EVENT LISTENERS ---
@@ -405,24 +427,29 @@
             moduleSelectionDiv.style.display = 'block';
         });
 
-        // --- FUNCTIONS ---
+        // --- FUNÇÕES ---
         
-        // Initializes the game when a module is selected
         function startGame(event) {
+            const NUMBER_OF_QUESTIONS = 20; // Define o número de questões por quiz
             const selectedModule = parseInt(event.target.dataset.module);
-            currentModuleQuestions = questions.filter(q => q.module === selectedModule);
+
+            // Filtra todas as questões do módulo selecionado
+            let allModuleQuestions = questions.filter(q => q.module === selectedModule);
             
-            // Randomize question order
-            currentModuleQuestions.sort(() => Math.random() - 0.5);
+            // Embaralha a lista completa de questões do módulo
+            allModuleQuestions.sort(() => Math.random() - 0.5); 
+
+            // Pega apenas as N primeiras questões da lista embaralhada
+            currentModuleQuestions = allModuleQuestions.slice(0, NUMBER_OF_QUESTIONS);
 
             currentQuestionIndex = 0;
             score = 0;
+            wrongAnswers = []; // Reseta a lista de erros
             
             moduleSelectionDiv.style.display = 'none';
             gameAreaDiv.style.display = 'block';
             moduleTitleEl.textContent = `Módulo ${selectedModule}`;
 
-            // Initialize modal if it hasn't been already
             if (!scoreModal) {
                 scoreModal = new bootstrap.Modal(document.getElementById('scoreModal'));
             }
@@ -430,32 +457,32 @@
             setNextQuestion();
         }
 
-        // Sets up the next question or ends the game
         function setNextQuestion() {
             resetState();
             if (currentQuestionIndex < currentModuleQuestions.length) {
                 showQuestion(currentModuleQuestions[currentQuestionIndex]);
                 updateProgressBar();
             } else {
-                updateProgressBar(true); // Final update to show 100%
+                updateProgressBar(true);
                 showFinalScore();
             }
         }
 
-        // Displays a question and its answer options
         function showQuestion(question) {
             questionTextEl.innerText = question.question;
-            question.options.forEach((option, index) => {
+            const correctAnswer = question.options[question.correct];
+            const shuffledOptions = [...question.options].sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach(option => {
                 const button = document.createElement('button');
                 button.innerText = option;
                 button.classList.add('btn', 'btn-outline-primary', 'answer-btn');
-                button.dataset.correct = (index === question.correct);
+                button.dataset.correct = (option === correctAnswer);
                 button.addEventListener('click', selectAnswer);
                 answerButtonsEl.appendChild(button);
             });
         }
 
-        // Resets the UI for the next question
         function resetState() {
             feedbackEl.innerText = '';
             feedbackEl.className = '';
@@ -465,7 +492,6 @@
             }
         }
 
-        // Handles the user's answer selection
         function selectAnswer(e) {
             const selectedBtn = e.target;
             const isCorrect = selectedBtn.dataset.correct === 'true';
@@ -474,20 +500,26 @@
                 score++;
                 feedbackEl.innerText = 'Correto!';
                 feedbackEl.classList.add('correct');
-                selectedBtn.classList.remove('btn-outline-primary');
-                selectedBtn.classList.add('btn-success');
+                selectedBtn.classList.replace('btn-outline-primary', 'btn-success');
             } else {
                 feedbackEl.innerText = 'Incorreto!';
                 feedbackEl.classList.add('incorrect');
-                selectedBtn.classList.remove('btn-outline-primary');
-                selectedBtn.classList.add('btn-danger');
+                selectedBtn.classList.replace('btn-outline-primary', 'btn-danger');
+
+                // Adiciona o erro à lista para revisão
+                const currentQuestion = currentModuleQuestions[currentQuestionIndex];
+                const correctAnswerText = currentQuestion.options[currentQuestion.correct];
+                wrongAnswers.push({
+                    question: currentQuestion.question,
+                    yourAnswer: selectedBtn.innerText,
+                    correctAnswer: correctAnswerText,
+                    explanation: currentQuestion.explanation || "Explicação não disponível."
+                });
             }
             
-            // Disable all buttons and show the correct answer
             Array.from(answerButtonsEl.children).forEach(button => {
                 if (button.dataset.correct === 'true' && !button.classList.contains('btn-success')) {
-                    button.classList.remove('btn-outline-primary');
-                    button.classList.add('btn-success');
+                    button.classList.replace('btn-outline-primary', 'btn-success');
                 }
                 button.disabled = true;
             });
@@ -495,14 +527,40 @@
             nextBtn.style.display = 'block';
         }
         
-        // Shows the final score in a modal
         function showFinalScore() {
-            const finalScoreEl = document.getElementById('final-score');
-            finalScoreEl.innerText = `${score} / ${currentModuleQuestions.length}`;
+            const totalQuestions = currentModuleQuestions.length;
+            const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+            
+            document.getElementById('final-score').innerText = `${score} / ${totalQuestions}`;
+            document.getElementById('final-percentage').innerText = `${percentage}%`;
+            
+            const wrongAnswersContainer = document.getElementById('wrong-answers-container');
+            wrongAnswersContainer.innerHTML = ''; // Limpa o conteúdo anterior
+
+            if (wrongAnswers.length > 0) {
+                const title = document.createElement('h4');
+                title.innerText = 'Revise seus erros:';
+                title.classList.add('mb-3');
+                wrongAnswersContainer.appendChild(title);
+
+                wrongAnswers.forEach(error => {
+                    const errorItem = document.createElement('div');
+                    errorItem.classList.add('wrong-answer-item');
+                    errorItem.innerHTML = `
+                        <p class="fw-bold">${error.question}</p>
+                        <p>Sua resposta: <span class="text-danger fw-semibold">${error.yourAnswer}</span></p>
+                        <p>Resposta correta: <span class="text-success fw-semibold">${error.correctAnswer}</span></p>
+                        <p class="mt-2"><em><strong>Explicação:</strong> ${error.explanation}</em></p>
+                    `;
+                    wrongAnswersContainer.appendChild(errorItem);
+                });
+            } else {
+                 wrongAnswersContainer.innerHTML = '<p class="text-center text-success fw-bold fs-5">Parabéns, você não cometeu nenhum erro!</p>';
+            }
+
             scoreModal.show();
         }
         
-        // Updates the progress bar
         function updateProgressBar(isFinished = false) {
             const progressPercentage = isFinished ? 100 : ((currentQuestionIndex) / currentModuleQuestions.length) * 100;
             progressBar.style.width = `${progressPercentage}%`;
