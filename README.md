@@ -1,6 +1,5 @@
 # gameInglishRev
 English Practice Game
-![Imagem de um print da tela do jogo]
 
 🚀 Sobre o Projeto
 O English Practice Game é uma aplicação web interativa, no estilo quiz, desenhada para auxiliar no estudo e reforço de conceitos da língua inglesa. O projeto foi criado com o objetivo de ser uma ferramenta de aprendizado dinâmica, permitindo que o usuário teste seus conhecimentos de forma prática e receba feedback instantâneo para acelerar sua evolução no idioma.
